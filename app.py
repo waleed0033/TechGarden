@@ -17,9 +17,9 @@ def contact():
     return render_template('contact.html')
 
 class SingUpForm(Form):
-    name = StringField('Name', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    name = StringField('Name', [validators.DataRequired(), validators.Length(min=1, max=50)], validators.)
     username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email', [validators.email, validators.Length(min=6, max=50)])
+    email = StringField('Email', [validators.Email("please enter val"), validators.Length(min=6, max=50)])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords do not match')
