@@ -1,7 +1,8 @@
-from flask import Flask, render_template, flash, url_for, session, logging, request
+from flask import Flask, render_template, flash, url_for, session, logging, request, redirect
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from flask_wtf import RecaptchaField, Recaptcha
 from passlib.hash import sha256_crypt
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -10,6 +11,10 @@ app.config['RECAPTCHA_PUBLIC_KEY']= '6LdWmOIUAAAAALBnW-byjnxFgGTN4otXh8dAc4sI'
 app.config['RECAPTCHA_PRIVATE_KEY']='6LdWmOIUAAAAAE2HuImf23hescbgdftadEv0T60P'
 app.config['SECRET_KEY'] = 'DhI1U6g9Pv8wRCGakI3QTAlpWbG4'
 app.config['TESTING'] = True
+
+#configer timeout for the session
+app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(seconds=30)
+
 
 @app.route('/')
 def index():
@@ -55,9 +60,24 @@ class Login(Form):
 def login():
     form = Login(request.form)
     if request.method == 'POST' and form.validate():
-        return request.values
+        session['email'] = form.email.data
+        session['password'] = form.password.data
+        return redirect(url_for('dashboard'))
     
     return render_template('login.html', form=form)
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

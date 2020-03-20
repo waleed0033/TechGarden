@@ -9,13 +9,21 @@
           <a class="nav-link" href="/">Home<span class="sr-only">Home</span></a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="/dashboard">Dashboard</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="/about">About US</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/contact">Contact US</a>
-          </li>
+        </li>
       </ul>
-      <a class="btn btn-outline-secondary mx-1" href="/login">Login</a>
-      <a class="btn btn-outline-primary mx-1" href="/singup">Sign up</a>
+      {% if session.email != null %}
+        <a class="btn btn-outline-secondary mx-1" href="/profile">Profile</a>
+        <a class="btn btn-outline-primary mx-1" href="/logout">Logout</a>
+      {% else %}  
+        <a class="btn btn-outline-secondary mx-1" href="/login">Login</a>
+        <a class="btn btn-outline-primary mx-1" href="/singup">Sign up</a>
+      {% endif %}
     </div>
   </nav>

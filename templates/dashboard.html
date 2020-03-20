@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<title>Welcome to TechGarden 🌳</title>
+{% endblock %}
+
+
+{% block body %}
+<section class="jumbotron text-center">
+    <div>
+      <h1>TechGarden 🌳</h1>
+      <br>
+      <p class="lead text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sequi qui debitis nulla nihil delectus consequuntur quidem, natus totam quo, facere, provident doloribus culpa iure possimus adipisci quas cumque itaque corporis.</p>
+      <p>
+        <h1>{{session.email}}</h1>
+      </p>
+    </div>
+</section>
+{% endblock %}
