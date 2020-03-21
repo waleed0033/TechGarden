@@ -1,8 +1,10 @@
 from flask import Flask, render_template, flash, url_for, session, logging, request, redirect
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, PasswordField, validators
 from flask_wtf import RecaptchaField, Recaptcha
 from passlib.hash import sha256_crypt
 from datetime import timedelta
+from functools import wraps
+
 
 app = Flask(__name__)
 
@@ -15,6 +17,21 @@ app.config['TESTING'] = True
 #configer timeout for the session
 app.config['PERMANENT_SESSION_LIFETIME'] =  timedelta(seconds=30)
 
+app.config['MYSQL_HOST'] = '104.198.153.176'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'p364352951497-hkqqm8'
+app.config['MYSQL_DB'] = 'users'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'email' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Unauthorized, Please login', 'danger')
+            return redirect(url_for('login'))
+    return wrap
 
 @app.route('/')
 def index():
@@ -44,7 +61,9 @@ class SingUpForm(Form):
 def SingUp():
     form = SingUpForm(request.form)
     if request.method == 'POST' and form.validate():
-        return request.values
+        session['email'] = form.email.data
+        session['password'] = form.password.data
+        return redirect(url_for('dashboard'))
     
     return render_template('singup.html', form=form)
 
@@ -67,6 +86,7 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route('/dashboard')
+@is_logged_in
 def dashboard():
     return render_template('dashboard.html')
 
@@ -76,6 +96,7 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/profile')
+@is_logged_in
 def profile():
     return render_template('profile.html')
 
