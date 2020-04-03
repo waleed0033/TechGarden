@@ -7,14 +7,13 @@
 
 
 {% block body %}
-<section class="jumbotron text-center">
-    <div>
-      <h1>TechGarden 🌳</h1>
-      <br>
-      <p class="lead text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sequi qui debitis nulla nihil delectus consequuntur quidem, natus totam quo, facere, provident doloribus culpa iure possimus adipisci quas cumque itaque corporis.</p>
-      <p>
-        <h1>{{session.email}}</h1>
-      </p>
-    </div>
-</section>
+<p><h5>Welcome {{current_user.name}}</h5></p>
+
+{% for garden in current_user.gardens %}
+  <div class="container-md bg-light rounded border border-dark m-2">
+    <h5>{{garden.name}}</h5>
+    <p>{{garden.timestamp}}</p>
+  </div>
+{% endfor %}
+
 {% endblock %}

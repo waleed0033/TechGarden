@@ -12,6 +12,9 @@
 
 {% from "includes/_formhelpers.html" import render_field %}
   <form method="POST" action="">
+
+    {{ form.hidden_tag() }}
+
     {{render_field(form.name, type="text", class="form-control")}}
     
     {{render_field(form.email, type="email", class="form-control", placeholder="Example@Email.com")}}
@@ -23,5 +26,6 @@
     {{render_field(form.recaptcha, class_="form-control")}}
       
     <p><input type="submit" class="btn btn-primary" value="Submit"></p>
+
   </form>
 {% endblock %}

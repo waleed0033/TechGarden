@@ -13,7 +13,7 @@
       <br>
       <p class="lead text-muted">Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores fuga adipisci sequi tempore recusandae necessitatibus maxime a quidem dolores illo ipsa aspernatur facere, nesciunt laborum vitae modi accusamus impedit Nobis Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sequi qui debitis nulla nihil delectus consequuntur quidem, natus totam quo, facere, provident doloribus culpa iure possimus adipisci quas cumque itaque corporis.</p>
       <p>
-        {% if session.email == null %}
+        {% if current_user.is_anonymous %}
           <a href="/singup" class="btn btn-primary my-2">Sing Up</a>
           <a href="/login" class="btn btn-secondary my-2">Login</a>
         {% endif %}
