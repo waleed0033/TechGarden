@@ -8,12 +8,41 @@
 
 {% block body %}
 <p><h5>Welcome {{current_user.name}}</h5></p>
-
-{% for garden in current_user.gardens %}
-  <div class="container-md bg-light rounded border border-dark m-2">
-    <h5>{{garden.name}}</h5>
-    <p>{{garden.timestamp}}</p>
-  </div>
-{% endfor %}
+<div>
+  {% for garden in current_user.gardens %}
+    <div class="garden card border-dark m-20">
+      <div class="card-header">{{garden.name}}</div>
+      <div class="card-body text-dark">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm">
+              <img src="{{url_for('static', filename='/Pictures/temp.png')}}" width="30px"/> {{garden.records.temperature}}
+              <br><small>Temperature</small>
+            </div>
+            <div class="col-sm">
+              <img src="{{url_for('static', filename='/Pictures/Water.png')}}" width="30px"/> 30
+              <br><small>Humidity</small>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm">
+              <img src="{{url_for('static', filename='/Pictures/soil.png')}}" width="30px"/> 30
+              <br><small>Soil Moist</small>
+            </div>
+            <div class="col-sm">
+              <img src="{{url_for('static', filename='/Pictures/water_level.png')}}" width="30px"/> 30
+              <br><small>Water Level</small>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="card-footer bg-transparent border-dark">
+          <a href="#" class="btn btn-danger">Remove {{garden.name}}</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 
 {% endblock %}
