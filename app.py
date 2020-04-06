@@ -7,8 +7,10 @@ from flask_login import LoginManager, current_user, login_user, UserMixin, logou
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 import pymysql
-import datetime
+from datetime import datetime
+import pygal
 
 pymysql.install_as_MySQLdb()
 
@@ -112,6 +114,20 @@ def login():
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
+    for garden in current_user.gardens:
+        if garden.lastRecoerd().temperature < garden.have.Min_Temp:
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in temperature below than ' + str(garden.have.Min_Temp) + '°','danger')
+        elif garden.lastRecoerd().temperature > garden.have.Max_Temp:
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in temperature higher than ' + str(garden.have.Max_Temp) + '°','danger')
+        elif garden.lastRecoerd().humidity < garden.have.Min_Hum:
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in humidity below than ' + str(garden.have.Min_Hum) + '%','danger')
+        elif garden.lastRecoerd().humidity > garden.have.Max_Hum:
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in humidity higher than ' + str(garden.have.Max_Hum) + '%','danger')
+        elif garden.lastRecoerd().soil_moist < garden.have.Min_S_Moist:
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in Soil Moist below than ' + str(garden.have.Min_S_Moist) + '%','danger')
+        elif garden.lastRecoerd().soil_moist > garden.have.Max_S_Moist:
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in Soil Moist higher than ' + str(garden.have.Max_S_Moist) + '%','danger')
+
     return render_template('dashboard.html')
 
 @app.route('/logout')
@@ -142,12 +158,27 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)  
 
+class Plant(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    Min_Hum = db.Column(db.Integer)
+    Max_Hum = db.Column(db.Integer)
+    Min_Temp = db.Column(db.Integer)
+    Max_Temp = db.Column(db.Integer)
+    Min_S_Moist = db.Column(db.Integer)
+    Max_S_Moist = db.Column(db.Integer)
+    gardens = db.relationship('Garden', backref='have')
+
+    def __repr__(self):
+        return '<Plant {}>'.format(self.id)
+
 class Garden(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     password_hash = db.Column(db.String(128))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    plant_id = db.Column(db.Integer, db.ForeignKey('plant.id'))
     records = db.relationship('Record', backref='records')
 
     def __repr__(self):
@@ -159,6 +190,34 @@ class Garden(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def lastRecoerd(self):
+        return Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).first()
+
+    def lastFiveRecoerd(self):
+        recoerds = Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).limit(6)
+        timestamp = []
+        temperature = []
+        humidity = []
+        soil_moist = []
+        water_level = []
+
+        for recoerd in recoerds:
+            timestamp.insert(0,recoerd.timestamp.strftime('%b/%d %H:%M'))
+            temperature.insert(0,recoerd.temperature)
+            humidity.insert(0,recoerd.humidity)
+            soil_moist.insert(0,recoerd.soil_moist)
+            water_level.insert(0,recoerd.water_level)
+
+        graph = pygal.Line()
+        graph.title = 'Graph to show the change of time and other variables'
+        graph.x_labels = timestamp
+        graph.add('Temperature', temperature)
+        graph.add('Humidity', humidity)
+        graph.add('Soil Moist', soil_moist)
+        graph.add('Water Level', water_level)
+        graph_data = graph.render_data_uri()
+        return graph_data
+
 class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     garden_id = db.Column(db.Integer, db.ForeignKey('garden.id'))
@@ -167,7 +226,7 @@ class Record(db.Model):
     water_level = db.Column(db.Integer)
     soil_moist = db.Column(db.Integer)
     water_pump = db.Column(db.Boolean)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
         return '<Record {}>'.format(self.id)

@@ -16,33 +16,85 @@
         <div class="container">
           <div class="row">
             <div class="col-sm">
-              <img src="{{url_for('static', filename='/Pictures/temp.png')}}" width="30px"/> {{garden.records.temperature}}
+              <img src="{{url_for('static', filename='/Pictures/temp.png')}}" width="30px"/> {{garden.lastRecoerd().temperature}}°
               <br><small>Temperature</small>
             </div>
             <div class="col-sm">
-              <img src="{{url_for('static', filename='/Pictures/Water.png')}}" width="30px"/> 30
+              <img src="{{url_for('static', filename='/Pictures/Water.png')}}" width="30px"/> {{garden.lastRecoerd().humidity}}%
               <br><small>Humidity</small>
             </div>
           </div>
           <br>
           <div class="row">
             <div class="col-sm">
-              <img src="{{url_for('static', filename='/Pictures/soil.png')}}" width="30px"/> 30
+              <img src="{{url_for('static', filename='/Pictures/soil.png')}}" width="30px"/> {{garden.lastRecoerd().soil_moist}}%
               <br><small>Soil Moist</small>
             </div>
             <div class="col-sm">
-              <img src="{{url_for('static', filename='/Pictures/water_level.png')}}" width="30px"/> 30
+              <img src="{{url_for('static', filename='/Pictures/water_level.png')}}" width="30px"/> {{garden.lastRecoerd().water_level}}%
               <br><small>Water Level</small>
             </div>
           </div>
         </div>
         <br>
+        <small>Last Updata was : {{garden.lastRecoerd().timestamp.strftime('%b/%d %H:%M')}}</small>
+        <br>
         <div class="card-footer bg-transparent border-dark">
-          <a href="#" class="btn btn-danger">Remove {{garden.name}}</a>
+          <button type="button" class="btn btn-primary" data-toggle="modal" href="#model{{garden.id}}">Show More Details</button>
+        </div>
+        <div class="card-footer bg-transparent border-0">
+          <a href="#" class="btn btn-danger"  data-toggle="modal" data-target="#RemoveModal">Remove {{garden.name}}</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" id="model{{garden.id}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title h4" id="myLargeModalLabel">{{garden.name}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p><b>This Garden was created in : </b>{{garden.timestamp.strftime('%Y/%b/%d %H:%M')}}</p>
+            <br>
+            <h4>Plant : </h4>
+            <p>You are useig <b>{{garden.have.name}}</b> plant were this plant can live between {{garden.have.Min_Temp}}° and {{garden.have.Max_Temp}}° </p>
+            <hr>
+            <h4>Graph : </h4>
+            <small>This graph to show you Temperature, Humidity, Soil Moist and Water Level over time</small>
+            <br><br>
+            <embed type="image/svg+xml" src={{garden.lastFiveRecoerd()|safe}} style='max-width:1000px'/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- Modal -->
+    <div class="modal fade" id="RemoveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{garden.name}} Garden</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to Remove {{garden.name}} Garden
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger">Remove {{garden.name}}</button>
+          </div>
         </div>
       </div>
     </div>
   {% endfor %}
 </div>
+
+
 
 {% endblock %}
