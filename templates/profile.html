@@ -7,15 +7,16 @@
 
 
 {% block body %}
-<section class="jumbotron text-center">
-    <div>
-      <h1>TechGarden 🌳</h1>
-      <br>
-      <p class="lead text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sequi qui debitis nulla nihil delectus consequuntur quidem, natus totam quo, facere, provident doloribus culpa iure possimus adipisci quas cumque itaque corporis.</p>
-      <p>
-        <h1>Welcome {{current_user.name}}</h1>
 
-      </p>
+  <div class="garden card border-dark m-30">
+    <div class="card-header"><h4><li>User Profile</li></h4></div>
+    <div class="card" style="width: 25rem;">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><b>Name : </b> {{current_user.name}}</li>
+        <li class="list-group-item"><b>Email : </b> {{current_user.email}}</li>
+        <li class="list-group-item"><b>Phone : </b> {{current_user.phone}}</li>
+      </ul>
     </div>
-</section>
+  </div>
+
 {% endblock %}

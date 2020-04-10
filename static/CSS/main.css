@@ -7,3 +7,9 @@
     width: 259.344px;
     height: 309px;
 }
+
+.plant{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;  
+}

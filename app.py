@@ -11,6 +11,7 @@ from sqlalchemy import desc
 import pymysql
 from datetime import datetime
 import pygal
+from timeago import format
 
 pymysql.install_as_MySQLdb()
 
@@ -111,7 +112,7 @@ def login():
     
     return render_template('login.html', form=form)
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['get','post'])
 @is_logged_in
 def dashboard():
     for garden in current_user.gardens:
@@ -128,7 +129,30 @@ def dashboard():
         elif garden.lastRecoerd().soil_moist > garden.have.Max_S_Moist:
             flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in Soil Moist higher than ' + str(garden.have.Max_S_Moist) + '%','danger')
 
+    if request.method == 'POST':
+        garden_id = request.form['id']
+        gardenNew = Garden.query.filter_by(id=garden_id).first()
+        if gardenNew is not None:
+            if gardenNew.owner is not None:
+                flash()
+            else:
+                flash()
+
     return render_template('dashboard.html')
+
+@app.route('/esp',methods=['post'])
+def arduino():
+    garden_id = request.form['garden_id']
+    humidity = request.form['humidity']
+    temperature = request.form['temperature']
+    water_level = request.form['water_level']
+    soil_moist = request.form['soil_moist']
+    water_pump = request.form['water_pump']
+    record = Record(garden_id=garden_id, humidity=humidity, temperature=temperature, water_level=water_level, soil_moist=soil_moist, water_pump=water_pump)
+    db.session.add(record)
+    db.commit()
+
+    return 'OK,' + Plant.Min_Hum + ',' + Plant.Max_Hum
 
 @app.route('/logout')
 def logout():
@@ -147,7 +171,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), index=True, unique=True)
     phone = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    gardens = db.relationship('Garden', backref='owner')
+    gardens = db.relationship('Garden', backref='owner',lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.name)
@@ -191,7 +215,7 @@ class Garden(db.Model):
         return check_password_hash(self.password_hash, password)
 
     def lastRecoerd(self):
-        return Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).first()
+        return Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).first()        
 
     def lastFiveRecoerd(self):
         recoerds = Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).limit(6)
@@ -230,6 +254,26 @@ class Record(db.Model):
 
     def __repr__(self):
         return '<Record {}>'.format(self.id)
+
+@app.route('/remove/<int:remove_garden_id>')
+@is_logged_in
+def removeGarden(remove_garden_id):
+    checkifremoved = False
+    for gardenRemove in current_user.gardens:
+        if gardenRemove.id == remove_garden_id:
+            gardenRemove.user_id = None
+            db.session.add(gardenRemove)
+            db.session.commit()
+            checkifremoved = True
+            break
+    
+    if checkifremoved:
+        flash('The garden have been removed successfully','success')
+    else:
+        flash('Fail to remove the garden','danger')
+    
+    return redirect(url_for('dashboard'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
