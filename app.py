@@ -134,9 +134,11 @@ def dashboard():
         gardenNew = Garden.query.filter_by(id=garden_id).first()
         if gardenNew is not None:
             if gardenNew.owner is not None:
-                flash()
+                flash('fail')
             else:
-                flash()
+                gardenNew.owner = current_user
+                db.session.commit()
+                flash('sess')
 
     return render_template('dashboard.html')
 
@@ -276,4 +278,4 @@ def removeGarden(remove_garden_id):
 
 
 if __name__ == '__main__':
-    app.run(host= '0.0.0.0')
+    app.run(debug=True,host= '0.0.0.0')
