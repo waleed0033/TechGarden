@@ -117,9 +117,9 @@ def login():
 def dashboard():
     for garden in current_user.gardens:
         if garden.lastRecoerd().temperature < garden.have.Min_Temp:
-            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in temperature below than ' + str(garden.have.Min_Temp) + '°','danger')
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in temperature below than ' + str(garden.have.Min_Temp),'danger')
         elif garden.lastRecoerd().temperature > garden.have.Max_Temp:
-            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in temperature higher than ' + str(garden.have.Max_Temp) + '°','danger')
+            flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in temperature higher than ' + str(garden.have.Max_Temp),'danger')
         elif garden.lastRecoerd().humidity < garden.have.Min_Hum:
             flash('Warning : Garden ' + garden.name + ' have ' + garden.have.name + ' plant where this plant cannot grow in humidity below than ' + str(garden.have.Min_Hum) + '%','danger')
         elif garden.lastRecoerd().humidity > garden.have.Max_Hum:
@@ -152,7 +152,7 @@ def arduino():
     water_pump = request.form['water_pump']
     record = Record(garden_id=garden_id, humidity=humidity, temperature=temperature, water_level=water_level, soil_moist=soil_moist, water_pump=water_pump)
     db.session.add(record)
-    db.commit()
+    db.session.commit()
 
     return 'OK,' + Plant.Min_Hum + ',' + Plant.Max_Hum
 
@@ -220,7 +220,7 @@ class Garden(db.Model):
         return Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).first()        
 
     def lastFiveRecoerd(self):
-        recoerds = Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).limit(6)
+        recoerds = Record.query.filter_by(garden_id=self.id).order_by(desc(Record.id)).limit(15)
         timestamp = []
         temperature = []
         humidity = []
@@ -228,7 +228,7 @@ class Garden(db.Model):
         water_level = []
 
         for recoerd in recoerds:
-            timestamp.insert(0,recoerd.timestamp.strftime('%b/%d %H:%M'))
+            timestamp.insert(0,recoerd.timestamp.strftime('%H:%M'))
             temperature.insert(0,recoerd.temperature)
             humidity.insert(0,recoerd.humidity)
             soil_moist.insert(0,recoerd.soil_moist)
