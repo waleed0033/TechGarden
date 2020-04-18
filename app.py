@@ -134,11 +134,11 @@ def dashboard():
         gardenNew = Garden.query.filter_by(id=garden_id).first()
         if gardenNew is not None:
             if gardenNew.owner is not None:
-                flash('fail')
+                flash('fail' ,'danger')
             else:
                 gardenNew.owner = current_user
                 db.session.commit()
-                flash('sess')
+                flash('You have add successfully ' ,'success')
 
     return render_template('dashboard.html')
 
